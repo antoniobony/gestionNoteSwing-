@@ -25,7 +25,7 @@ public class EtudiantController {
 
     private final HttpClient client = HttpClient.newHttpClient();
     private final ObjectMapper mapper = new ObjectMapper();
-    private final String BASE_URL = "http://localhost:8080/api/etudiants"; // Modifie si nécessaire
+    private final String BASE_URL = "http://localhost:8080/api/etudiants?size=14"; // Modifie si nécessaire
     private JTable table;
     private DefaultTableModel tableModel;
     private JLabel min_moye;
@@ -117,7 +117,7 @@ public class EtudiantController {
             max_moye.setText("0");
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(BASE_URL + "/moyenneClasse"))
+                    .uri(URI.create(BASE_URL.replace("?size=14","") + "/moyenneClasse"))
                     .GET()
                     .build();
 
@@ -148,7 +148,7 @@ public class EtudiantController {
         try {
             String json = mapper.writeValueAsString(etudiant);
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(BASE_URL))
+                    .uri(URI.create(BASE_URL.replace("?size=14","")))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(json))
                     .build();
@@ -163,10 +163,11 @@ public class EtudiantController {
     }
 
     public void updateEtudiant(Etudiant etudiant) {
+        System.out.println("ae");
         try {
             String json = mapper.writeValueAsString(etudiant);
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(BASE_URL + "/"+ etudiant.getNumEt() ))
+                    .uri(URI.create(BASE_URL.replace("?size=14","") + "/"+ etudiant.getNumEt() ))
                     .header("Content-Type", "application/json")
                     .PUT(HttpRequest.BodyPublishers.ofString(json))
                     .build();
@@ -183,7 +184,7 @@ public class EtudiantController {
     public void deleteEtudiant(String numero) {
         try {
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(BASE_URL + "/"+ numero ))
+                    .uri(URI.create(BASE_URL.replace("?size=14","") + "/"+ numero ))
                     .DELETE()
                     .build();
 

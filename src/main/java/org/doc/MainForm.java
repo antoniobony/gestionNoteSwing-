@@ -15,9 +15,6 @@ public class MainForm extends JFrame{
     private JPanel patientTab;
 
     private JTable etudiantTable;
-
-
-    private JTextField inputNumero;
     private JTextField inputNom;
     private JTextField inputMoyenne;
 
@@ -45,7 +42,6 @@ public class MainForm extends JFrame{
     public MainForm () {
         DefaultTableModel etudiantTableModel = new DefaultTableModel();
         etudiantController = new EtudiantController(etudiantTable, etudiantTableModel, min_moy, max_moye, chart_pannel);
-
         setContentPane(mainContainerPanel);
         setTitle("Gestion des notes des etudiants.");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -64,7 +60,7 @@ public class MainForm extends JFrame{
                     int selectedRow = etudiantTable.getSelectedRow();
                     if (selectedRow != -1) {
                         GLOBAL_INDEX = selectedRow;
-                        indexEtudiant.setText((selectedRow+1) +"");
+                        indexEtudiant.setText(etudiantTable.getValueAt (selectedRow,0).toString());
                         updateEtudiant.setEnabled(true);
                         deleteEtudiant.setEnabled(true);
                     } else {
@@ -76,27 +72,32 @@ public class MainForm extends JFrame{
 
 
         //*****************************
-        //  BUTTON ACTIONS MEDECIN
+        //  BUTTON ACTIONS
         //****************************
         submitEtudiant.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                Integer matricule = Integer.parseInt(inputNumero.getText());
-                String nom = inputNom.getText();
-                String moyenneStr = inputMoyenne.getText();
 
                 try {
+                    String nom = inputNom.getText();
+                    String moyenneStr = inputMoyenne.getText();
                     float moyenne = Float.parseFloat(moyenneStr);
 
                     if (moyenne < 0 || moyenne > 20) {
                         JOptionPane.showMessageDialog(null, "La moyenne doit être comprise entre 0 et 20.", "Erreur de validation", JOptionPane.ERROR_MESSAGE);
                         inputMoyenne.setText("0");
                         return;
+                    } else if (nom.equals("")) {
+                        JOptionPane.showMessageDialog(null, "Veuillez insérer votre  nom ", "Erreur de validation", JOptionPane.ERROR_MESSAGE);
+                        return;
                     }
-                    Etudiant etudiant = new Etudiant(matricule, nom, moyenne); // moyenne est un float
-                    if (IS_CREATE) {
+                    // moyenne est un float
+                    if (IS_CREATE ) {
+                        Etudiant etudiant = new Etudiant(null, nom, moyenne);
                         etudiantController.addEtudiant(etudiant);
                     } else {
+                        Integer matricule = Integer.parseInt(etudiantTable.getValueAt(GLOBAL_INDEX, 0).toString());
+                        Etudiant etudiant = new Etudiant(matricule, nom, moyenne);
                         etudiantController.updateEtudiant(etudiant);
                     }
                     clearInputs();
@@ -114,32 +115,34 @@ public class MainForm extends JFrame{
                 clearInputs();
             }
         });
+
         rafraichirEtudiantButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 etudiantController.loadEtudiantsIntoTable();
             }
         });
+
         annulerEtudiantActionButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-               clearActions();
+                clearActions();
+                clearInputs();
             }
         });
+
         updateEtudiant.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                inputNumero.setEnabled(false);
                 IS_CREATE = false;
-                inputNumero.setText(etudiantTable.getValueAt(GLOBAL_INDEX, 0).toString());
                 inputNom.setText(etudiantTable.getValueAt(GLOBAL_INDEX, 1).toString());
                 inputMoyenne.setText(etudiantTable.getValueAt(GLOBAL_INDEX, 2).toString());
             }
         });
+
         deleteEtudiant.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                inputNumero.setEnabled(false);
                 IS_CREATE = true;
                 String matricule = etudiantTable.getValueAt(GLOBAL_INDEX, 0).toString();
                 // Create the confirmation dialog
@@ -167,10 +170,6 @@ public class MainForm extends JFrame{
 
     private void clearInputs () {
         IS_CREATE = true;
-
-        inputNumero.setEnabled((true));
-
-        inputNumero.setText("");
         inputNom.setText("");
         inputMoyenne.setText("");
 
@@ -178,10 +177,7 @@ public class MainForm extends JFrame{
 
     private void clearActions(){
         GLOBAL_INDEX = -1;
-        inputNumero.setEnabled(true);
-
         indexEtudiant.setText("Aucun");
-
         updateEtudiant.setEnabled(false);
         deleteEtudiant.setEnabled(false);
     }
